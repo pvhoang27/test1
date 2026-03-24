@@ -15,12 +15,12 @@ const menuItems = [
   {
     key: '/danh-muc/tinh-tp',
     icon: <GlobalOutlined />,
-    label: <Link to="/danh-muc/tinh-tp">Tỉnh / Thành phố</Link>,
+    label: <Link to="/danh-muc/tinh-tp">Tỉnh / Thành phố TW</Link>,
   },
   {
     key: '/danh-muc/huyen-thi-xa',
     icon: <EnvironmentOutlined />,
-    label: <Link to="/danh-muc/huyen-thi-xa">Huyện / Thị xã</Link>,
+    label: <Link to="/danh-muc/huyen-thi-xa">Huyện /Thành phố / Thị xã</Link>,
   },
   {
     key: '/danh-muc/xa-phuong',

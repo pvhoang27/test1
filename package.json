@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "yarn build && vite preview"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
-    "antd": "^6.3.3",
+    "antd": "^5.20.3",
     "axios": "^1.13.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

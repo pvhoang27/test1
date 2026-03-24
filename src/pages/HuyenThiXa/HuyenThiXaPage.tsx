@@ -144,22 +144,22 @@ const HuyenThiXaPage: React.FC = () => {
         ((searchParams.page ?? 1) - 1) * (searchParams.pageSize ?? 10) + index + 1,
     },
     {
-      title: 'Mã Huyện / Thị xã',
+      title: 'Mã Huyện / Thành phố / Thị xã',
       dataIndex: 'maHuyen',
       key: 'maHuyen',
-      width: 160,
+      width: 220,
       render: (val: string) => <Tag color="geekblue">{val}</Tag>,
     },
     {
-      title: 'Tên Huyện / Thị xã',
+      title: 'Tên Huyện / Thành phố / Thị xã',
       dataIndex: 'tenHuyen',
       key: 'tenHuyen',
     },
     {
-      title: 'Tỉnh / Thành phố',
+      title: 'Tỉnh / TP trực thuộc TW',
       dataIndex: 'tenTinh',
       key: 'tenTinh',
-      width: 200,
+      width: 240,
       render: (val: string) => val || '—',
     },
     {
@@ -198,14 +198,14 @@ const HuyenThiXaPage: React.FC = () => {
       {/* Search */}
       <div className={styles['search-section']}>
         <div className={styles['search-section__title']}>
-          <SearchOutlined /> Tìm kiếm Huyện / Thị xã
+          <SearchOutlined /> Tìm kiếm Huyện / Thành phố / Thị xã
         </div>
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
           <Row gutter={[12, 12]} style={{ width: '100%' }}>
             <Col xs={24} sm={12} md={8} lg={7}>
-              <Form.Item name="maTinh" label="Tỉnh / Thành phố">
+              <Form.Item name="maTinh" label="Tỉnh / TP trực thuộc TW">
                 <Select
-                  placeholder="Chọn tỉnh/TP"
+                  placeholder="Chọn Tỉnh / TP trực thuộc TW"
                   allowClear
                   showSearch
                   optionFilterProp="label"
@@ -214,9 +214,9 @@ const HuyenThiXaPage: React.FC = () => {
                 />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={12} md={8} lg={6}>
-              <Form.Item name="tenHuyen" label="Tên Huyện / Thị xã">
-                <Input placeholder="Nhập tên huyện/thị xã" maxLength={250} allowClear />
+            <Col xs={24} sm={12} md={8} lg={8}>
+              <Form.Item name="tenHuyen" label="Tên Huyện / Thành phố / Thị xã">
+                <Input placeholder="Nhập tên huyện / thành phố / thị xã" maxLength={250} allowClear />
               </Form.Item>
             </Col>
             <Col>
@@ -237,7 +237,7 @@ const HuyenThiXaPage: React.FC = () => {
       <div className={styles['table-section']}>
         <div className={styles['table-section__header']}>
           <span className={styles['table-section__title']}>
-            Danh sách Huyện / Thị xã
+            Danh sách Huyện / Thành phố / Thị xã
             <span className={styles['table-section__total']}>
               — Tổng: <strong>{total}</strong> bản ghi
             </span>
@@ -282,7 +282,7 @@ const HuyenThiXaPage: React.FC = () => {
 
       {/* Import Modal */}
       <Modal
-        title="Import danh sách Huyện / Thị xã"
+        title="Import danh sách Huyện / Thành phố / Thị xã"
         open={importModal}
         onOk={handleImport}
         onCancel={() => { setImportModal(false); setFileList([]); importForm.resetFields(); }}
@@ -293,11 +293,11 @@ const HuyenThiXaPage: React.FC = () => {
         <Form form={importForm} layout="vertical">
           <Form.Item
             name="maTinh"
-            label="Tỉnh / Thành phố"
-            rules={[{ required: true, message: 'Vui lòng chọn tỉnh/TP' }]}
+            label="Tỉnh / TP trực thuộc TW"
+            rules={[{ required: true, message: 'Vui lòng chọn Tỉnh / TP trực thuộc TW' }]}
           >
             <Select
-              placeholder="Chọn tỉnh/TP áp dụng cho dữ liệu import"
+              placeholder="Chọn Tỉnh / TP trực thuộc TW áp dụng cho dữ liệu import"
               showSearch
               optionFilterProp="label"
               options={tinhTPOptions}
@@ -322,7 +322,7 @@ const HuyenThiXaPage: React.FC = () => {
 
       {/* Edit Modal */}
       <Modal
-        title="Cập nhật Huyện / Thị xã"
+        title="Cập nhật Huyện / Thành phố / Thị xã"
         open={editModal}
         onOk={handleSave}
         onCancel={() => setEditModal(false)}
@@ -331,12 +331,19 @@ const HuyenThiXaPage: React.FC = () => {
         confirmLoading={saving}
       >
         <Form form={editForm} layout="vertical">
-          <Form.Item name="maHuyen" label="Mã Huyện / Thị xã">
-            <Input maxLength={6} disabled />
+          <Form.Item 
+            name="maHuyen" 
+            label="Mã Huyện / Thành phố / Thị xã"
+            rules={[
+              { required: true, message: 'Không được có ký tự trống' },
+              { pattern: /^[1-9]\d{0,5}$/, message: 'Mã phải là số nguyên dương, tối đa 6 số' }
+            ]}
+          >
+            <Input maxLength={6} placeholder="Nhập mã" />
           </Form.Item>
           <Form.Item
             name="tenHuyen"
-            label="Tên Huyện / Thị xã"
+            label="Tên Huyện / Thành phố / Thị xã"
             rules={[
               { max: 250, message: 'Tối đa 250 ký tự' },
               { pattern: /^\S/, message: 'Không được có ký tự trắng đầu tiên' },
@@ -344,12 +351,12 @@ const HuyenThiXaPage: React.FC = () => {
           >
             <Input maxLength={250} placeholder="Hỗ trợ tiếng Việt có dấu" />
           </Form.Item>
-          <Form.Item name="maTinh" label="Tỉnh / Thành phố">
+          <Form.Item name="maTinh" label="Tỉnh / TP trực thuộc TW">
             <Select
               showSearch
               optionFilterProp="label"
               options={tinhTPOptions}
-              placeholder="Chọn tỉnh/TP"
+              placeholder="Chọn Tỉnh / TP trực thuộc TW"
             />
           </Form.Item>
         </Form>
