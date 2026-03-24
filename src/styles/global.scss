@@ -1,0 +1,44 @@
+// Global SCSS variables & resets
+:root {
+  --color-primary: #1677ff;
+  --color-primary-dark: #0958d9;
+  --color-bg-layout: #f0f2f5;
+  --color-bg-white: #ffffff;
+  --color-border: #e8e8e8;
+  --color-text-primary: #262626;
+  --color-text-secondary: #595959;
+  --color-text-disabled: #bfbfbf;
+  --color-success: #52c41a;
+  --color-warning: #faad14;
+  --color-error: #ff4d4f;
+  --sidebar-width: 240px;
+  --header-height: 64px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.16);
+  --transition: 0.2s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--color-bg-layout);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.5715;
+}
