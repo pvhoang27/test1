@@ -1,49 +1,43 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Spin } from 'antd';
 import AppLayout from '../components/Layout/AppLayout';
 
+const LoginPage = lazy(() => import('../pages/Login/LoginPage'));
 const TinhTPPage = lazy(() => import('../pages/TinhTP/TinhTPPage'));
 const HuyenThiXaPage = lazy(() => import('../pages/HuyenThiXa/HuyenThiXaPage'));
 const XaPhuongPage = lazy(() => import('../pages/XaPhuong/XaPhuongPage'));
 
 const LoadingFallback = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw' }}>
     <Spin size="large" tip="Đang tải..." />
   </div>
 );
 
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return <>{children}</>;
+};
+
 const AppRouter: React.FC = () => (
   <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<AppLayout />}>
-        <Route index element={<Navigate to="/danh-muc/tinh-tp" replace />} />
-        <Route
-          path="danh-muc/tinh-tp"
-          element={
-            <Suspense fallback={<LoadingFallback />}>
-              <TinhTPPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="danh-muc/huyen-thi-xa"
-          element={
-            <Suspense fallback={<LoadingFallback />}>
-              <HuyenThiXaPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="danh-muc/xa-phuong"
-          element={
-            <Suspense fallback={<LoadingFallback />}>
-              <XaPhuongPage />
-            </Suspense>
-          }
-        />
-      </Route>
-    </Routes>
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        
+        <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route index element={<Navigate to="/danh-muc/tinh-tp" replace />} />
+          <Route path="danh-muc/tinh-tp" element={<TinhTPPage />} />
+          <Route path="danh-muc/huyen-thi-xa" element={<HuyenThiXaPage />} />
+          <Route path="danh-muc/xa-phuong" element={<XaPhuongPage />} />
+        </Route>
+      </Routes>
+    </Suspense>
   </BrowserRouter>
 );
 

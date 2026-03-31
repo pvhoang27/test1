@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Layout, Menu } from 'antd';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   GlobalOutlined,
   EnvironmentOutlined,
   HomeOutlined,
   AppstoreOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
+import { Button } from 'antd';
 import styles from './AppLayout.module.scss';
 
 const { Sider, Header, Content } = Layout;
@@ -31,10 +33,16 @@ const menuItems = [
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
   const selectedKey =
     menuItems.find((item) => location.pathname.startsWith(item.key))?.key ?? '';
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    navigate('/login', { replace: true });
+  };
 
   return (
     <Layout className={styles['main-layout']} style={{ minHeight: '100vh' }}>
@@ -58,10 +66,13 @@ const AppLayout: React.FC = () => {
       </Sider>
 
       <Layout style={{ marginLeft: collapsed ? 80 : 240, transition: 'margin-left 0.2s' }}>
-        <Header className={styles['ant-layout-header']}>
+        <Header className={styles['ant-layout-header']} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', background: '#fff', boxShadow: '0 1px 4px rgba(0,21,41,.08)' }}>
           <span style={{ fontWeight: 600, fontSize: 16, color: '#262626' }}>
             Hệ thống Quản lý Danh mục Hành chính
           </span>
+          <Button type="primary" danger icon={<LogoutOutlined />} onClick={handleLogout}>
+            Đăng xuất
+          </Button>
         </Header>
         <Content style={{ padding: 24, background: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
           <Outlet />
