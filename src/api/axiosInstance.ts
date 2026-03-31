@@ -1,10 +1,7 @@
 import axios from 'axios';
 import {
   mockTinhTP,
-  mockHuyenThiXa,
-  mockXaPhuong,
   searchMockTinhTP,
-  searchMockHuyenThiXa,
   searchMockXaPhuong,
 } from '../mocks/danhMucMock';
 
@@ -55,27 +52,11 @@ api.interceptors.response.use(
         });
       }
 
-      // Huyện Thị Xã
-      if (url.includes('/danh-muc/huyen-thi-xa')) {
-        const result = searchMockHuyenThiXa({
-          maTinh: params.maTinh,
-          tenHuyen: params.tenHuyen,
-          page: params.page || 1,
-          pageSize: params.pageSize || 10,
-        });
-        return Promise.resolve({
-          data: result,
-          status: 200,
-          statusText: 'OK',
-          headers: {},
-          config,
-        });
-      }
 
       // Xã Phường
       if (url.includes('/danh-muc/xa-phuong')) {
         const result = searchMockXaPhuong({
-          maHuyen: params.maHuyen,
+          maTinh: params.maTinh,
           tenXa: params.tenXa,
           page: params.page || 1,
           pageSize: params.pageSize || 10,

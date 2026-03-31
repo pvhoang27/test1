@@ -28,8 +28,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload';
 import type { XaPhuong, XaPhuongSearchParams } from '../../types';
 import { useXaPhuong, useTinhTPAll } from '../../hooks/useDanhMuc';
-import { xaPhuongApi, huyenThiXaApi } from '../../api/danhMucApi';
-import useSWR from 'swr';
+import { xaPhuongApi } from '../../api/danhMucApi';
 import styles from '../../styles/danhMuc.module.scss';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -43,7 +42,6 @@ const XaPhuongPage: React.FC = () => {
     page: 1,
     pageSize: DEFAULT_PAGE_SIZE,
   });
-  const [selectedTinhForImport, setSelectedTinhForImport] = useState<string>('');
 
   const [importModal, setImportModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -55,17 +53,7 @@ const XaPhuongPage: React.FC = () => {
   const { data, total, isLoading, mutate } = useXaPhuong(searchParams);
   const { tinhTPList } = useTinhTPAll();
 
-  // Load huyện theo tỉnh đã chọn (cho form import)
-  const { data: huyenForImport } = useSWR(
-    selectedTinhForImport ? ['huyen-all', selectedTinhForImport] : null,
-    () => huyenThiXaApi.search({ maTinh: selectedTinhForImport, pageSize: 9999 }).then((r) => r.data)
-  );
-
   const tinhTPOptions = tinhTPList.map((t) => ({ value: t.maTinh, label: t.tenTinh }));
-  const huyenImportOptions = (huyenForImport ?? []).map((h) => ({
-    value: h.maHuyen,
-    label: h.tenHuyen,
-  }));
 
   // ---- Search ----
   const handleSearch = (values: { maXa?: string; tenXa?: string }) => {
@@ -123,16 +111,15 @@ const XaPhuongPage: React.FC = () => {
       return;
     }
     try {
-      const { maHuyen } = await importForm.validateFields();
+      const { maTinh } = await importForm.validateFields();
       const file = fileList[0].originFileObj as File;
       setImporting(true);
-      const result = await xaPhuongApi.importFile(maHuyen, file);
+      const result = await xaPhuongApi.importFile(maTinh, file);
       if (result.success) {
         message.success(result.message || 'Import thành công!');
         setImportModal(false);
         setFileList([]);
         importForm.resetFields();
-        setSelectedTinhForImport('');
         mutate();
       } else {
         message.error(result.message || 'Import thất bại!');
@@ -169,9 +156,9 @@ const XaPhuongPage: React.FC = () => {
       key: 'tenXa',
     },
     {
-      title: 'Quận / Huyện',
-      dataIndex: 'tenHuyen',
-      key: 'tenHuyen',
+      title: 'Tỉnh / Thành phố',
+      dataIndex: 'tenTinh',
+      key: 'tenTinh',
       width: 200,
       render: (val: string) => val || '—',
     },
@@ -295,37 +282,22 @@ const XaPhuongPage: React.FC = () => {
           setImportModal(false);
           setFileList([]);
           importForm.resetFields();
-          setSelectedTinhForImport('');
         }}
         okText="Import"
         cancelText="Hủy"
         confirmLoading={importing}
       >
         <Form form={importForm} layout="vertical">
-          <Form.Item name="_maTinh" label="Tỉnh / Thành phố (để lọc huyện)">
+          <Form.Item
+            name="maTinh"
+            label="Tỉnh / Thành phố"
+            rules={[{ required: true, message: 'Vui lòng chọn Tỉnh/Thành phố' }]}
+          >
             <Select
-              placeholder="Chọn tỉnh/TP"
+              placeholder="Chọn tỉnh/TP áp dụng cho dữ liệu import"
               showSearch
               optionFilterProp="label"
               options={tinhTPOptions}
-              allowClear
-              onChange={(val) => {
-                setSelectedTinhForImport(val ?? '');
-                importForm.setFieldValue('maHuyen', undefined);
-              }}
-            />
-          </Form.Item>
-          <Form.Item
-            name="maHuyen"
-            label="Huyện / Thị xã"
-            rules={[{ required: true, message: 'Vui lòng chọn huyện/thị xã' }]}
-          >
-            <Select
-              placeholder="Chọn huyện/thị xã áp dụng cho dữ liệu import"
-              showSearch
-              optionFilterProp="label"
-              options={huyenImportOptions}
-              disabled={!selectedTinhForImport}
             />
           </Form.Item>
         </Form>

@@ -2,8 +2,6 @@ import api from './axiosInstance';
 import type {
   TinhTP,
   TinhTPSearchParams,
-  HuyenThiXa,
-  HuyenThiXaSearchParams,
   XaPhuong,
   XaPhuongSearchParams,
   ApiResponse,
@@ -36,28 +34,6 @@ export const tinhTPApi = {
   },
 };
 
-// ============ Huyện / Thị xã APIs ============
-export const huyenThiXaApi = {
-  search: (params: HuyenThiXaSearchParams): Promise<ApiResponse<HuyenThiXa>> =>
-    api.get('/danh-muc/huyen-thi-xa', { params }).then((r) => r.data),
-
-  update: (maHuyen: string, data: Partial<HuyenThiXa>): Promise<HuyenThiXa> =>
-    api.put(`/danh-muc/huyen-thi-xa/${maHuyen}`, data).then((r) => r.data),
-
-  delete: (maHuyen: string): Promise<void> =>
-    api.delete(`/danh-muc/huyen-thi-xa/${maHuyen}`).then((r) => r.data),
-
-  importFile: (maTinh: string, file: File): Promise<ImportResult> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('maTinh', maTinh);
-    return api
-      .post('/danh-muc/huyen-thi-xa/import', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      .then((r) => r.data);
-  },
-};
 
 // ============ Xã / Phường APIs ============
 export const xaPhuongApi = {
@@ -70,10 +46,10 @@ export const xaPhuongApi = {
   delete: (maXa: string): Promise<void> =>
     api.delete(`/danh-muc/xa-phuong/${maXa}`).then((r) => r.data),
 
-  importFile: (maHuyen: string, file: File): Promise<ImportResult> => {
+  importFile: (maTinh: string, file: File): Promise<ImportResult> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('maHuyen', maHuyen);
+    formData.append('maTinh', maTinh);
     return api
       .post('/danh-muc/xa-phuong/import', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },

@@ -11,33 +11,20 @@ export interface TinhTPSearchParams {
   pageSize?: number;
 }
 
-// ============ Huyện / Thị xã ============
-export interface HuyenThiXa {
-  maHuyen: string;
-  tenHuyen: string;
-  maTinh: string;
-  tenTinh?: string;
-}
-
-export interface HuyenThiXaSearchParams {
-  maTinh?: string;
-  tenHuyen?: string;
-  page?: number;
-  pageSize?: number;
-}
+// ============ Huyện / Thị xã (Removed based on new requirements) ============
 
 // ============ Xã / Phường ============
 export interface XaPhuong {
   maXa: string;
   tenXa: string;
-  maHuyen: string;
-  tenHuyen?: string;
+  maTinh: string;
+  tenTinh?: string;
 }
 
 export interface XaPhuongSearchParams {
   maXa?: string;
   tenXa?: string;
-  maHuyen?: string;
+  maTinh?: string;
   page?: number;
   pageSize?: number;
 }

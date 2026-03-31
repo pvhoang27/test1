@@ -5,7 +5,7 @@ import AppLayout from '../components/Layout/AppLayout';
 
 const LoginPage = lazy(() => import('../pages/Login/LoginPage'));
 const TinhTPPage = lazy(() => import('../pages/TinhTP/TinhTPPage'));
-const HuyenThiXaPage = lazy(() => import('../pages/HuyenThiXa/HuyenThiXaPage'));
+
 const XaPhuongPage = lazy(() => import('../pages/XaPhuong/XaPhuongPage'));
 
 const LoadingFallback = () => (
@@ -33,7 +33,7 @@ const AppRouter: React.FC = () => (
         <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/danh-muc/tinh-tp" replace />} />
           <Route path="danh-muc/tinh-tp" element={<TinhTPPage />} />
-          <Route path="danh-muc/huyen-thi-xa" element={<HuyenThiXaPage />} />
+
           <Route path="danh-muc/xa-phuong" element={<XaPhuongPage />} />
         </Route>
       </Routes>
