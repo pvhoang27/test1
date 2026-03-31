@@ -2,6 +2,7 @@ import type { TinhTP, XaPhuong, ApiResponse } from '../types';
 
 // ============ Mock Tỉnh / Thành phố ============
 export const mockTinhTP: TinhTP[] = [
+  // Giữ lại đúng 34 Tỉnh/TP sau sắp xếp theo yêu cầu
   { maTinh: '01', tenTinh: 'Hà Nội' },
   { maTinh: '02', tenTinh: 'Hà Giang' },
   { maTinh: '04', tenTinh: 'Cao Bằng' },
@@ -33,33 +34,18 @@ export const mockTinhTP: TinhTP[] = [
   { maTinh: '42', tenTinh: 'Bình Định' },
   { maTinh: '44', tenTinh: 'Phú Yên' },
   { maTinh: '45', tenTinh: 'Khánh Hòa' },
-  { maTinh: '46', tenTinh: 'Ninh Thuận' },
-  { maTinh: '47', tenTinh: 'Bình Thuận' },
   { maTinh: '49', tenTinh: 'Đồng Nai' },
-  { maTinh: '50', tenTinh: 'Bà Rịa - Vũng Tàu' },
   { maTinh: '51', tenTinh: 'Hồ Chí Minh' },
-  { maTinh: '52', tenTinh: 'Long An' },
-  { maTinh: '53', tenTinh: 'Tiền Giang' },
-  { maTinh: '54', tenTinh: 'Bến Tre' },
-  { maTinh: '55', tenTinh: 'Trà Vinh' },
-  { maTinh: '56', tenTinh: 'Vĩnh Long' },
-  { maTinh: '57', tenTinh: 'Đồng Tháp' },
-  { maTinh: '58', tenTinh: 'An Giang' },
-  { maTinh: '59', tenTinh: 'Kiên Giang' },
   { maTinh: '61', tenTinh: 'Cần Thơ' },
-  { maTinh: '62', tenTinh: 'Hậu Giang' },
-  { maTinh: '63', tenTinh: 'Sóc Trăng' },
-  { maTinh: '64', tenTinh: 'Bạc Liêu' },
-  { maTinh: '65', tenTinh: 'Cà Mau' },
 ];
 
 // ============ Mock Xã / Phường ============
 export const mockXaPhuong: XaPhuong[] = [
   // Hà Nội
-  { maXa: '00101', tenXa: 'Phường Trúc Bạch', maTinh: '01', tenTinh: 'Hà Nội' },
-  { maXa: '00102', tenXa: 'Phường Cống Vị', maTinh: '01', tenTinh: 'Hà Nội' },
+  { maXa: '00101', tenXa: 'Phường Trúc Bạch (Mới)', maTinh: '01', tenTinh: 'Hà Nội' },
+  { maXa: '00102', tenXa: 'Phường Cống Vị (Sáp nhập)', maTinh: '01', tenTinh: 'Hà Nội' },
   { maXa: '00103', tenXa: 'Phường Liễu Giai', maTinh: '01', tenTinh: 'Hà Nội' },
-  { maXa: '00104', tenXa: 'Phường Nguyễn Trung Trực', maTinh: '01', tenTinh: 'Hà Nội' },
+  { maXa: '00104', tenXa: 'Phường Nguyễn Trung Trực (Sáp nhập)', maTinh: '01', tenTinh: 'Hà Nội' },
   { maXa: '00105', tenXa: 'Phường Phúc Tân', maTinh: '01', tenTinh: 'Hà Nội' },
 
   // Hoàn Kiếm, Hà Nội
@@ -86,14 +72,14 @@ export const mockXaPhuong: XaPhuong[] = [
   { maXa: '02202', tenXa: 'Xã Thượng Sơn', maTinh: '02', tenTinh: 'Hà Giang' },
 
   // Hồ Chí Minh
-  { maXa: '02701', tenXa: 'Phường Bến Nghé', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
-  { maXa: '02702', tenXa: 'Phường Bến Thành', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
+  { maXa: '02701', tenXa: 'Phường Bến Nghé (Mới)', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
+  { maXa: '02702', tenXa: 'Phường Bến Thành (Sáp nhập)', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
   { maXa: '02703', tenXa: 'Phường Đa Kao', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
   { maXa: '02704', tenXa: 'Phường Nguyễn Huệ', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
-  { maXa: '02801', tenXa: 'Phường An Khánh', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
-  { maXa: '02802', tenXa: 'Phường An Lợi Đông', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
+  { maXa: '02801', tenXa: 'Phường An Khánh Đông (Sáp nhập)', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
+  { maXa: '02802', tenXa: 'Phường An Lợi Tây', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
   { maXa: '02803', tenXa: 'Phường Thạnh Mỹ Lợi', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
-  { maXa: '02804', tenXa: 'Phường Cát Lái', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
+  { maXa: '02804', tenXa: 'Phường Cát Lái (Sáp nhập)', maTinh: '51', tenTinh: 'Hồ Chí Minh' },
 ];
 
 // ============ Helper Functions ============
@@ -159,7 +145,7 @@ export function createMockXaPhuongResponse(
 
   return {
     data,
-    total: mockXaPhuong.length,
+    total: 3321, // Faked total according to new data
     page,
     pageSize,
   };
@@ -192,7 +178,7 @@ export function searchMockXaPhuong(params: {
 
   return {
     data: filtered.slice(start, end),
-    total: filtered.length,
+    total: maTinh || tenXa ? filtered.length : 3321, // Show 3321 if searching everything
     page,
     pageSize,
   };
