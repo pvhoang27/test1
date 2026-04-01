@@ -26,37 +26,40 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload';
-import type { XaPhuong, XaPhuongSearchParams } from '../../types';
-import { useXaPhuong, useTinhTPAll } from '../../hooks/useDanhMuc';
-import { xaPhuongApi } from '../../api/danhMucApi';
-import styles from '../../styles/danhMuc.module.scss';
+import type { Ward, WardSearchParams } from '../../types';
+import { useWard, useProvinceAll } from '../../hooks/useCatalog';
+import { wardApi } from '../../api/catalogApi';
+import styles from '../../styles/catalog.module.scss';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-const XaPhuongPage: React.FC = () => {
+const WardPage: React.FC = () => {
   const [searchForm] = Form.useForm();
   const [editForm] = Form.useForm();
   const [importForm] = Form.useForm();
 
-  const [searchParams, setSearchParams] = useState<XaPhuongSearchParams>({
+  const [searchParams, setSearchParams] = useState<WardSearchParams>({
     page: 1,
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
   const [importModal, setImportModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<XaPhuong | null>(null);
+  const [editingRecord, setEditingRecord] = useState<Ward | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [importing, setImporting] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const { data, total, isLoading, mutate } = useXaPhuong(searchParams);
-  const { tinhTPList } = useTinhTPAll();
+  const { data, total, isLoading, mutate } = useWard(searchParams);
+  const { provinceList } = useProvinceAll();
 
-  const tinhTPOptions = tinhTPList.map((t) => ({ value: t.maTinh, label: t.tenTinh }));
+  const provinceOptions = provinceList.map((province) => ({
+    value: province.provinceCode,
+    label: province.provinceName,
+  }));
 
   // ---- Search ----
-  const handleSearch = (values: { maXa?: string; tenXa?: string }) => {
+  const handleSearch = (values: { wardCode?: string; wardName?: string }) => {
     setSearchParams({ ...values, page: 1, pageSize: searchParams.pageSize });
   };
 
@@ -71,7 +74,7 @@ const XaPhuongPage: React.FC = () => {
   };
 
   // ---- Edit ----
-  const openEdit = (record: XaPhuong) => {
+  const openEdit = (record: Ward) => {
     setEditingRecord(record);
     editForm.setFieldsValue(record);
     setEditModal(true);
@@ -81,7 +84,7 @@ const XaPhuongPage: React.FC = () => {
     try {
       const values = await editForm.validateFields();
       setSaving(true);
-      await xaPhuongApi.update(editingRecord!.maXa, values);
+      await wardApi.update(editingRecord!.wardCode, values);
       message.success('Cập nhật thành công!');
       setEditModal(false);
       mutate();
@@ -94,9 +97,9 @@ const XaPhuongPage: React.FC = () => {
   };
 
   // ---- Delete ----
-  const handleDelete = async (maXa: string) => {
+  const handleDelete = async (wardCode: string) => {
     try {
-      await xaPhuongApi.delete(maXa);
+      await wardApi.delete(wardCode);
       message.success('Xóa thành công!');
       mutate();
     } catch {
@@ -111,10 +114,10 @@ const XaPhuongPage: React.FC = () => {
       return;
     }
     try {
-      const { maTinh } = await importForm.validateFields();
+      const { provinceCode } = await importForm.validateFields();
       const file = fileList[0].originFileObj as File;
       setImporting(true);
-      const result = await xaPhuongApi.importFile(maTinh, file);
+      const result = await wardApi.importFile(provinceCode, file);
       if (result.success) {
         message.success(result.message || 'Import thành công!');
         setImportModal(false);
@@ -134,31 +137,31 @@ const XaPhuongPage: React.FC = () => {
   };
 
   // ---- Columns ----
-  const columns: ColumnsType<XaPhuong> = [
+  const columns: ColumnsType<Ward> = [
     {
       title: 'STT',
       key: 'stt',
       width: 60,
       align: 'center',
-      render: (_: unknown, __: XaPhuong, index: number) =>
+      render: (_: unknown, __: Ward, index: number) =>
         ((searchParams.page ?? 1) - 1) * (searchParams.pageSize ?? 10) + index + 1,
     },
     {
       title: 'Mã Xã / Phường',
-      dataIndex: 'maXa',
-      key: 'maXa',
+      dataIndex: 'wardCode',
+      key: 'wardCode',
       width: 150,
       render: (val: string) => <Tag color="green">{val}</Tag>,
     },
     {
       title: 'Tên Xã / Phường',
-      dataIndex: 'tenXa',
-      key: 'tenXa',
+      dataIndex: 'wardName',
+      key: 'wardName',
     },
     {
       title: 'Tỉnh / Thành phố',
-      dataIndex: 'tenTinh',
-      key: 'tenTinh',
+      dataIndex: 'provinceName',
+      key: 'provinceName',
       width: 200,
       render: (val: string) => val || '—',
     },
@@ -166,7 +169,7 @@ const XaPhuongPage: React.FC = () => {
       title: 'Tác vụ',
       key: 'action',
       width: 100,
-      render: (_: unknown, record: XaPhuong) => (
+      render: (_: unknown, record: Ward) => (
         <div className={styles['action-buttons']}>
           <Tooltip title="Cập nhật">
             <Button
@@ -179,8 +182,8 @@ const XaPhuongPage: React.FC = () => {
           <Tooltip title="Xóa">
             <Popconfirm
               title="Xác nhận xóa"
-              description={`Bạn có chắc muốn xóa "${record.tenXa}"?`}
-              onConfirm={() => handleDelete(record.maXa)}
+              description={`Bạn có chắc muốn xóa "${record.wardName}"?`}
+              onConfirm={() => handleDelete(record.wardCode)}
               okText="Xóa"
               cancelText="Hủy"
               okButtonProps={{ danger: true }}
@@ -203,12 +206,12 @@ const XaPhuongPage: React.FC = () => {
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
           <Row gutter={[12, 12]} style={{ width: '100%' }}>
             <Col xs={24} sm={12} md={6} lg={5}>
-              <Form.Item name="maXa" label="Mã Xã / Phường">
+              <Form.Item name="wardCode" label="Mã Xã / Phường">
                 <Input placeholder="Nhập mã xã/phường" maxLength={25} allowClear />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={8} lg={6}>
-              <Form.Item name="tenXa" label="Tên Xã / Phường">
+              <Form.Item name="wardName" label="Tên Xã / Phường">
                 <Input placeholder="Nhập tên xã/phường" maxLength={250} allowClear />
               </Form.Item>
             </Col>
@@ -247,7 +250,7 @@ const XaPhuongPage: React.FC = () => {
         <Table
           columns={columns}
           dataSource={data}
-          rowKey="maXa"
+          rowKey="wardCode"
           loading={isLoading}
           pagination={false}
           locale={{
@@ -289,7 +292,7 @@ const XaPhuongPage: React.FC = () => {
       >
         <Form form={importForm} layout="vertical">
           <Form.Item
-            name="maTinh"
+            name="provinceCode"
             label="Tỉnh / Thành phố"
             rules={[{ required: true, message: 'Vui lòng chọn Tỉnh/Thành phố' }]}
           >
@@ -297,7 +300,7 @@ const XaPhuongPage: React.FC = () => {
               placeholder="Chọn tỉnh/TP áp dụng cho dữ liệu import"
               showSearch
               optionFilterProp="label"
-              options={tinhTPOptions}
+              options={provinceOptions}
             />
           </Form.Item>
         </Form>
@@ -328,11 +331,11 @@ const XaPhuongPage: React.FC = () => {
         confirmLoading={saving}
       >
         <Form form={editForm} layout="vertical">
-          <Form.Item name="maXa" label="Mã Xã / Phường">
+          <Form.Item name="wardCode" label="Mã Xã / Phường">
             <Input maxLength={6} disabled />
           </Form.Item>
           <Form.Item
-            name="tenXa"
+            name="wardName"
             label="Tên Xã / Phường"
             rules={[
               { max: 250, message: 'Tối đa 250 ký tự' },
@@ -347,4 +350,4 @@ const XaPhuongPage: React.FC = () => {
   );
 };
 
-export default XaPhuongPage;
+export default WardPage;

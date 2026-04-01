@@ -25,33 +25,33 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload';
-import type { TinhTP, TinhTPSearchParams } from '../../types';
-import { useTinhTP } from '../../hooks/useDanhMuc';
-import { tinhTPApi } from '../../api/danhMucApi';
-import styles from '../../styles/danhMuc.module.scss';
+import type { Province, ProvinceSearchParams } from '../../types';
+import { useProvince } from '../../hooks/useCatalog';
+import { provinceApi } from '../../api/catalogApi';
+import styles from '../../styles/catalog.module.scss';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-const TinhTPPage: React.FC = () => {
+const ProvincePage: React.FC = () => {
   const [searchForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
-  const [searchParams, setSearchParams] = useState<TinhTPSearchParams>({
+  const [searchParams, setSearchParams] = useState<ProvinceSearchParams>({
     page: 1,
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
   const [importModal, setImportModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<TinhTP | null>(null);
+  const [editingRecord, setEditingRecord] = useState<Province | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [importing, setImporting] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const { data, total, isLoading, mutate } = useTinhTP(searchParams);
+  const { data, total, isLoading, mutate } = useProvince(searchParams);
 
   // ---- Search ----
-  const handleSearch = (values: { maTinh?: string; tenTinh?: string }) => {
+  const handleSearch = (values: { provinceCode?: string; provinceName?: string }) => {
     setSearchParams({ ...values, page: 1, pageSize: searchParams.pageSize });
   };
 
@@ -66,7 +66,7 @@ const TinhTPPage: React.FC = () => {
   };
 
   // ---- Edit ----
-  const openEdit = (record: TinhTP) => {
+  const openEdit = (record: Province) => {
     setEditingRecord(record);
     editForm.setFieldsValue(record);
     setEditModal(true);
@@ -76,7 +76,7 @@ const TinhTPPage: React.FC = () => {
     try {
       const values = await editForm.validateFields();
       setSaving(true);
-      await tinhTPApi.update(editingRecord!.maTinh, values);
+      await provinceApi.update(editingRecord!.provinceCode, values);
       message.success('Cập nhật thành công!');
       setEditModal(false);
       mutate();
@@ -89,9 +89,9 @@ const TinhTPPage: React.FC = () => {
   };
 
   // ---- Delete ----
-  const handleDelete = async (maTinh: string) => {
+  const handleDelete = async (provinceCode: string) => {
     try {
-      await tinhTPApi.delete(maTinh);
+      await provinceApi.delete(provinceCode);
       message.success('Xóa thành công!');
       mutate();
     } catch {
@@ -108,7 +108,7 @@ const TinhTPPage: React.FC = () => {
     const file = fileList[0].originFileObj as File;
     try {
       setImporting(true);
-      const result = await tinhTPApi.importFile('', file);
+      const result = await provinceApi.importFile('', file);
       if (result.success) {
         message.success(result.message || 'Import thành công!');
         setImportModal(false);
@@ -126,32 +126,32 @@ const TinhTPPage: React.FC = () => {
   };
 
   // ---- Columns ----
-  const columns: ColumnsType<TinhTP> = [
+  const columns: ColumnsType<Province> = [
     {
       title: 'STT',
       key: 'stt',
       width: 60,
       align: 'center',
-      render: (_: unknown, __: TinhTP, index: number) =>
+      render: (_: unknown, __: Province, index: number) =>
         ((searchParams.page ?? 1) - 1) * (searchParams.pageSize ?? 10) + index + 1,
     },
     {
       title: 'Mã Tỉnh / TP',
-      dataIndex: 'maTinh',
-      key: 'maTinh',
+      dataIndex: 'provinceCode',
+      key: 'provinceCode',
       width: 140,
       render: (val: string) => <Tag color="blue">{val}</Tag>,
     },
     {
       title: 'Tên Tỉnh / Thành phố',
-      dataIndex: 'tenTinh',
-      key: 'tenTinh',
+      dataIndex: 'provinceName',
+      key: 'provinceName',
     },
     {
       title: 'Tác vụ',
       key: 'action',
       width: 100,
-      render: (_: unknown, record: TinhTP) => (
+      render: (_: unknown, record: Province) => (
         <div className={styles['action-buttons']}>
           <Tooltip title="Cập nhật">
             <Button
@@ -164,8 +164,8 @@ const TinhTPPage: React.FC = () => {
           <Tooltip title="Xóa">
             <Popconfirm
               title="Xác nhận xóa"
-              description={`Bạn có chắc muốn xóa "${record.tenTinh}"?`}
-              onConfirm={() => handleDelete(record.maTinh)}
+              description={`Bạn có chắc muốn xóa "${record.provinceName}"?`}
+              onConfirm={() => handleDelete(record.provinceCode)}
               okText="Xóa"
               cancelText="Hủy"
               okButtonProps={{ danger: true }}
@@ -188,12 +188,12 @@ const TinhTPPage: React.FC = () => {
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
           <Row gutter={[12, 12]} style={{ width: '100%' }}>
             <Col xs={24} sm={12} md={8} lg={6}>
-              <Form.Item name="maTinh" label="Mã Tỉnh / TP">
+              <Form.Item name="provinceCode" label="Mã Tỉnh / TP">
                 <Input placeholder="Nhập mã tỉnh/TP" maxLength={6} allowClear />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={8} lg={6}>
-              <Form.Item name="tenTinh" label="Tên Tỉnh / TP">
+              <Form.Item name="provinceName" label="Tên Tỉnh / TP">
                 <Input placeholder="Nhập tên tỉnh/TP" maxLength={250} allowClear />
               </Form.Item>
             </Col>
@@ -232,7 +232,7 @@ const TinhTPPage: React.FC = () => {
         <Table
           columns={columns}
           dataSource={data}
-          rowKey="maTinh"
+          rowKey="provinceCode"
           loading={isLoading}
           pagination={false}
           locale={{
@@ -296,14 +296,14 @@ const TinhTPPage: React.FC = () => {
       >
         <Form form={editForm} layout="vertical">
           <Form.Item
-            name="maTinh"
+            name="provinceCode"
             label="Mã Tỉnh / TP"
             rules={[{ required: true, message: 'Nhập mã tỉnh/TP' }]}
           >
             <Input maxLength={6} placeholder="Tối đa 6 số" disabled />
           </Form.Item>
           <Form.Item
-            name="tenTinh"
+            name="provinceName"
             label="Tên Tỉnh / Thành phố"
             rules={[
               { required: false },
@@ -317,6 +317,7 @@ const TinhTPPage: React.FC = () => {
       </Modal>
     </div>
   );
+
 };
 
-export default TinhTPPage;
+export default ProvincePage;

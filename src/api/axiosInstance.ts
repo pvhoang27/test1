@@ -1,9 +1,9 @@
 import axios from 'axios';
 import {
-  mockTinhTP,
-  searchMockTinhTP,
-  searchMockXaPhuong,
-} from '../mocks/danhMucMock';
+  mockProvinces,
+  searchMockProvinces,
+  searchMockWards,
+} from '../mocks/catalogMock';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
@@ -28,7 +28,7 @@ api.interceptors.response.use(
       // Tỉnh TP - getAll
       if (url.includes('/danh-muc/tinh-tp/all')) {
         return Promise.resolve({
-          data: mockTinhTP,
+          data: mockProvinces,
           status: 200,
           statusText: 'OK',
           headers: {},
@@ -38,8 +38,8 @@ api.interceptors.response.use(
 
       // Tỉnh TP - search
       if (url.includes('/danh-muc/tinh-tp') && !url.includes('all')) {
-        const result = searchMockTinhTP({
-          tenTinh: params.tenTinh,
+        const result = searchMockProvinces({
+          provinceName: params.tenTinh ?? params.provinceName,
           page: params.page || 1,
           pageSize: params.pageSize || 10,
         });
@@ -55,9 +55,9 @@ api.interceptors.response.use(
 
       // Xã Phường
       if (url.includes('/danh-muc/xa-phuong')) {
-        const result = searchMockXaPhuong({
-          maTinh: params.maTinh,
-          tenXa: params.tenXa,
+        const result = searchMockWards({
+          provinceCode: params.maTinh ?? params.provinceCode,
+          wardName: params.tenXa ?? params.wardName,
           page: params.page || 1,
           pageSize: params.pageSize || 10,
         });

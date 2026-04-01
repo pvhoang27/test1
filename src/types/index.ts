@@ -1,30 +1,30 @@
-// ============ Tỉnh / Thành phố ============
-export interface TinhTP {
-  maTinh: string;
-  tenTinh: string;
+// ============ Province ============
+export interface Province {
+  provinceCode: string;
+  provinceName: string;
 }
 
-export interface TinhTPSearchParams {
-  maTinh?: string;
-  tenTinh?: string;
+export interface ProvinceSearchParams {
+  provinceCode?: string;
+  provinceName?: string;
   page?: number;
   pageSize?: number;
 }
 
-// ============ Huyện / Thị xã (Removed based on new requirements) ============
+// ============ District / Town (Removed based on new requirements) ============
 
-// ============ Xã / Phường ============
-export interface XaPhuong {
-  maXa: string;
-  tenXa: string;
-  maTinh: string;
-  tenTinh?: string;
+// ============ Ward ============
+export interface Ward {
+  wardCode: string;
+  wardName: string;
+  provinceCode: string;
+  provinceName?: string;
 }
 
-export interface XaPhuongSearchParams {
-  maXa?: string;
-  tenXa?: string;
-  maTinh?: string;
+export interface WardSearchParams {
+  wardCode?: string;
+  wardName?: string;
+  provinceCode?: string;
   page?: number;
   pageSize?: number;
 }

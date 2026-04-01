@@ -4,9 +4,9 @@ import { Spin } from 'antd';
 import AppLayout from '../components/Layout/AppLayout';
 
 const LoginPage = lazy(() => import('../pages/Login/LoginPage'));
-const TinhTPPage = lazy(() => import('../pages/TinhTP/TinhTPPage'));
+const ProvincePage = lazy(() => import('../pages/Province/ProvincePage'));
 
-const XaPhuongPage = lazy(() => import('../pages/XaPhuong/XaPhuongPage'));
+const WardPage = lazy(() => import('../pages/Ward/WardPage'));
 
 const LoadingFallback = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw' }}>
@@ -32,9 +32,9 @@ const AppRouter: React.FC = () => (
         
         <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/danh-muc/tinh-tp" replace />} />
-          <Route path="danh-muc/tinh-tp" element={<TinhTPPage />} />
+          <Route path="danh-muc/tinh-tp" element={<ProvincePage />} />
 
-          <Route path="danh-muc/xa-phuong" element={<XaPhuongPage />} />
+          <Route path="danh-muc/xa-phuong" element={<WardPage />} />
         </Route>
       </Routes>
     </Suspense>
