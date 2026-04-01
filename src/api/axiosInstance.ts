@@ -5,12 +5,55 @@ import {
   searchMockWards,
 } from '../mocks/catalogMock';
 
+const ENDPOINTS = {
+  provinces: '/catalog/provinces',
+  provincesAll: '/catalog/provinces/all',
+  wards: '/catalog/wards',
+} as const;
+
+const LEGACY_ENDPOINTS = {
+  provinces: '/danh-muc/tinh-tp',
+  provincesAll: '/danh-muc/tinh-tp/all',
+  wards: '/danh-muc/xa-phuong',
+} as const;
+
+const LEGACY_FIELDS = {
+  provinceCode: 'maTinh',
+  provinceName: 'tenTinh',
+  wardName: 'tenXa',
+} as const;
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 30000,
+});
+
+const toLegacyPath = (url: string): string => {
+  if (url.startsWith(ENDPOINTS.provincesAll)) {
+    return url.replace(ENDPOINTS.provincesAll, LEGACY_ENDPOINTS.provincesAll);
+  }
+
+  if (url.startsWith(ENDPOINTS.provinces)) {
+    return url.replace(ENDPOINTS.provinces, LEGACY_ENDPOINTS.provinces);
+  }
+
+  if (url.startsWith(ENDPOINTS.wards)) {
+    return url.replace(ENDPOINTS.wards, LEGACY_ENDPOINTS.wards);
+  }
+
+  return url;
+};
+
+// Keep frontend endpoint names in English while remaining backward-compatible with legacy backend routes.
+api.interceptors.request.use((config) => {
+  if (typeof config.url === 'string') {
+    config.url = toLegacyPath(config.url);
+  }
+
+  return config;
 });
 
 // ============ Mock Response Interceptor ============
@@ -26,7 +69,7 @@ api.interceptors.response.use(
       console.warn('Using mock data for:', url);
 
       // Tỉnh TP - getAll
-      if (url.includes('/danh-muc/tinh-tp/all')) {
+      if (url.includes(ENDPOINTS.provincesAll)) {
         return Promise.resolve({
           data: mockProvinces,
           status: 200,
@@ -37,9 +80,9 @@ api.interceptors.response.use(
       }
 
       // Tỉnh TP - search
-      if (url.includes('/danh-muc/tinh-tp') && !url.includes('all')) {
+      if (url.includes(ENDPOINTS.provinces) && !url.includes('all')) {
         const result = searchMockProvinces({
-          provinceName: params.tenTinh ?? params.provinceName,
+          provinceName: params[LEGACY_FIELDS.provinceName] ?? params.provinceName,
           page: params.page || 1,
           pageSize: params.pageSize || 10,
         });
@@ -54,10 +97,10 @@ api.interceptors.response.use(
 
 
       // Xã Phường
-      if (url.includes('/danh-muc/xa-phuong')) {
+      if (url.includes(ENDPOINTS.wards)) {
         const result = searchMockWards({
-          provinceCode: params.maTinh ?? params.provinceCode,
-          wardName: params.tenXa ?? params.wardName,
+          provinceCode: params[LEGACY_FIELDS.provinceCode] ?? params.provinceCode,
+          wardName: params[LEGACY_FIELDS.wardName] ?? params.wardName,
           page: params.page || 1,
           pageSize: params.pageSize || 10,
         });

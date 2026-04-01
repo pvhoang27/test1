@@ -9,19 +9,20 @@ import {
 } from '@ant-design/icons';
 import { Button } from 'antd';
 import styles from './AppLayout.module.scss';
+import { ROUTES } from '../../router/routes';
 
 const { Sider, Header, Content } = Layout;
 
 const menuItems = [
   {
-    key: '/danh-muc/tinh-tp',
+    key: ROUTES.catalogProvinces,
     icon: <GlobalOutlined />,
-    label: <Link to="/danh-muc/tinh-tp">Tỉnh / Thành phố TW</Link>,
+    label: <Link to={ROUTES.catalogProvinces}>Tỉnh / Thành phố TW</Link>,
   },
   {
-    key: '/danh-muc/xa-phuong',
+    key: ROUTES.catalogWards,
     icon: <HomeOutlined />,
-    label: <Link to="/danh-muc/xa-phuong">Xã / Phường</Link>,
+    label: <Link to={ROUTES.catalogWards}>Xã / Phường</Link>,
   },
 ];
 
@@ -35,7 +36,7 @@ const AppLayout: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    navigate('/login', { replace: true });
+    navigate(ROUTES.login, { replace: true });
   };
 
   return (

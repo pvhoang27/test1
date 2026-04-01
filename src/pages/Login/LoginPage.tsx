@@ -3,12 +3,18 @@ import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.scss';
+import { ROUTES } from '../../router/routes';
+
+type LoginFormValues = {
+  username: string;
+  password: string;
+};
 
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: LoginFormValues) => {
     setLoading(true);
     // Giả lập call API login delay 1 giây
     setTimeout(() => {
@@ -17,7 +23,7 @@ const LoginPage: React.FC = () => {
       if (values.username === 'admin' && values.password === '123456') {
         message.success('Đăng nhập thành công!');
         localStorage.setItem('isAuthenticated', 'true');
-        navigate('/danh-muc/tinh-tp', { replace: true });
+        navigate(ROUTES.catalogProvinces, { replace: true });
       } else {
         message.error('Tài khoản hoặc mật khẩu không chính xác! (Gợi ý: admin/123456)');
       }

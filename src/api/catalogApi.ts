@@ -8,34 +8,45 @@ import type {
   ImportResult,
 } from '../types';
 
+const ENDPOINTS = {
+  provinces: '/catalog/provinces',
+  provincesAll: '/catalog/provinces/all',
+  provinceImport: '/catalog/provinces/import',
+  wards: '/catalog/wards',
+  wardImport: '/catalog/wards/import',
+} as const;
+
+const LEGACY_FIELDS = {
+  provinceCode: 'maTinh',
+  provinceName: 'tenTinh',
+  wardCode: 'maXa',
+  wardName: 'tenXa',
+} as const;
+
 type LegacyProvince = {
-  maTinh?: string;
-  tenTinh?: string;
   provinceCode?: string;
   provinceName?: string;
+  [key: string]: string | undefined;
 };
 
 type LegacyWard = {
-  maXa?: string;
-  tenXa?: string;
-  maTinh?: string;
-  tenTinh?: string;
   wardCode?: string;
   wardName?: string;
   provinceCode?: string;
   provinceName?: string;
+  [key: string]: string | undefined;
 };
 
 const toProvince = (item: LegacyProvince): Province => ({
-  provinceCode: item.provinceCode ?? item.maTinh ?? '',
-  provinceName: item.provinceName ?? item.tenTinh ?? '',
+  provinceCode: item.provinceCode ?? item[LEGACY_FIELDS.provinceCode] ?? '',
+  provinceName: item.provinceName ?? item[LEGACY_FIELDS.provinceName] ?? '',
 });
 
 const toWard = (item: LegacyWard): Ward => ({
-  wardCode: item.wardCode ?? item.maXa ?? '',
-  wardName: item.wardName ?? item.tenXa ?? '',
-  provinceCode: item.provinceCode ?? item.maTinh ?? '',
-  provinceName: item.provinceName ?? item.tenTinh,
+  wardCode: item.wardCode ?? item[LEGACY_FIELDS.wardCode] ?? '',
+  wardName: item.wardName ?? item[LEGACY_FIELDS.wardName] ?? '',
+  provinceCode: item.provinceCode ?? item[LEGACY_FIELDS.provinceCode] ?? '',
+  provinceName: item.provinceName ?? item[LEGACY_FIELDS.provinceName],
 });
 
 const mapProvinceSearchResponse = (
@@ -56,10 +67,10 @@ const mapWardSearchResponse = (
 export const provinceApi = {
   search: (params: ProvinceSearchParams): Promise<ApiResponse<Province>> =>
     api
-      .get('/danh-muc/tinh-tp', {
+      .get(ENDPOINTS.provinces, {
         params: {
-          maTinh: params.provinceCode,
-          tenTinh: params.provinceName,
+          [LEGACY_FIELDS.provinceCode]: params.provinceCode,
+          [LEGACY_FIELDS.provinceName]: params.provinceName,
           page: params.page,
           pageSize: params.pageSize,
         },
@@ -67,27 +78,27 @@ export const provinceApi = {
       .then((r) => mapProvinceSearchResponse(r.data)),
 
   getAll: (): Promise<Province[]> =>
-    api.get('/danh-muc/tinh-tp/all').then((r) =>
+    api.get(ENDPOINTS.provincesAll).then((r) =>
       (r.data as LegacyProvince[]).map(toProvince)
     ),
 
   update: (provinceCode: string, data: Partial<Province>): Promise<Province> =>
     api
-      .put(`/danh-muc/tinh-tp/${provinceCode}`, {
-        maTinh: data.provinceCode,
-        tenTinh: data.provinceName,
+      .put(`${ENDPOINTS.provinces}/${provinceCode}`, {
+        [LEGACY_FIELDS.provinceCode]: data.provinceCode,
+        [LEGACY_FIELDS.provinceName]: data.provinceName,
       })
       .then((r) => toProvince(r.data)),
 
   delete: (provinceCode: string): Promise<void> =>
-    api.delete(`/danh-muc/tinh-tp/${provinceCode}`).then((r) => r.data),
+    api.delete(`${ENDPOINTS.provinces}/${provinceCode}`).then((r) => r.data),
 
   importFile: (provinceCode: string, file: File): Promise<ImportResult> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('maTinh', provinceCode);
+    formData.append(LEGACY_FIELDS.provinceCode, provinceCode);
     return api
-      .post('/danh-muc/tinh-tp/import', formData, {
+      .post(ENDPOINTS.provinceImport, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((r) => r.data);
@@ -99,11 +110,11 @@ export const provinceApi = {
 export const wardApi = {
   search: (params: WardSearchParams): Promise<ApiResponse<Ward>> =>
     api
-      .get('/danh-muc/xa-phuong', {
+      .get(ENDPOINTS.wards, {
         params: {
-          maXa: params.wardCode,
-          tenXa: params.wardName,
-          maTinh: params.provinceCode,
+          [LEGACY_FIELDS.wardCode]: params.wardCode,
+          [LEGACY_FIELDS.wardName]: params.wardName,
+          [LEGACY_FIELDS.provinceCode]: params.provinceCode,
           page: params.page,
           pageSize: params.pageSize,
         },
@@ -112,22 +123,22 @@ export const wardApi = {
 
   update: (wardCode: string, data: Partial<Ward>): Promise<Ward> =>
     api
-      .put(`/danh-muc/xa-phuong/${wardCode}`, {
-        maXa: data.wardCode,
-        tenXa: data.wardName,
-        maTinh: data.provinceCode,
+      .put(`${ENDPOINTS.wards}/${wardCode}`, {
+        [LEGACY_FIELDS.wardCode]: data.wardCode,
+        [LEGACY_FIELDS.wardName]: data.wardName,
+        [LEGACY_FIELDS.provinceCode]: data.provinceCode,
       })
       .then((r) => toWard(r.data)),
 
   delete: (wardCode: string): Promise<void> =>
-    api.delete(`/danh-muc/xa-phuong/${wardCode}`).then((r) => r.data),
+    api.delete(`${ENDPOINTS.wards}/${wardCode}`).then((r) => r.data),
 
   importFile: (provinceCode: string, file: File): Promise<ImportResult> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('maTinh', provinceCode);
+    formData.append(LEGACY_FIELDS.provinceCode, provinceCode);
     return api
-      .post('/danh-muc/xa-phuong/import', formData, {
+      .post(ENDPOINTS.wardImport, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((r) => r.data);

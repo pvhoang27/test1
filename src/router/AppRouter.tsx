@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Spin } from 'antd';
 import AppLayout from '../components/Layout/AppLayout';
+import { ROUTES } from './routes';
 
 const LoginPage = lazy(() => import('../pages/Login/LoginPage'));
 const ProvincePage = lazy(() => import('../pages/Province/ProvincePage'));
@@ -19,7 +20,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={ROUTES.login} state={{ from: location }} replace />;
   }
   return <>{children}</>;
 };
@@ -28,13 +29,14 @@ const AppRouter: React.FC = () => (
   <BrowserRouter>
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path={ROUTES.login} element={<LoginPage />} />
         
-        <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route index element={<Navigate to="/danh-muc/tinh-tp" replace />} />
-          <Route path="danh-muc/tinh-tp" element={<ProvincePage />} />
-
-          <Route path="danh-muc/xa-phuong" element={<WardPage />} />
+        <Route path={ROUTES.home} element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route index element={<Navigate to={ROUTES.catalogProvinces} replace />} />
+          <Route path="catalog/provinces" element={<ProvincePage />} />
+          <Route path="catalog/wards" element={<WardPage />} />
+          <Route path="danh-muc/tinh-tp" element={<Navigate to={ROUTES.catalogProvinces} replace />} />
+          <Route path="danh-muc/xa-phuong" element={<Navigate to={ROUTES.catalogWards} replace />} />
         </Route>
       </Routes>
     </Suspense>
