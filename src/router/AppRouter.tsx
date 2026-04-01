@@ -10,9 +10,7 @@ const ProvincePage = lazy(() => import('../pages/Province/ProvincePage'));
 const WardPage = lazy(() => import('../pages/Ward/WardPage'));
 
 const LoadingFallback = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw' }}>
-    <Spin size="large" tip="Đang tải..." />
-  </div>
+  <Spin size="large" tip="Đang tải..." fullscreen />
 );
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

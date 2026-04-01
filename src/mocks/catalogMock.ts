@@ -65,6 +65,130 @@ export const mockWards: Ward[] = mockProvinces.flatMap((province, index) => {
   }));
 });
 
+const mockDb = {
+  provinces: [...mockProvinces],
+  wards: [...mockWards],
+};
+
+export const getMockProvinces = (): Province[] => mockDb.provinces;
+
+export const getMockWards = (): Ward[] => mockDb.wards;
+
+export const createMockProvince = (province: Province): Province => {
+  const provinceCode = province.provinceCode.trim();
+  const provinceName = province.provinceName.trim();
+
+  if (!provinceCode || !provinceName) {
+    throw new Error('INVALID_PROVINCE_DATA');
+  }
+
+  if (mockDb.provinces.some((item) => item.provinceCode === provinceCode)) {
+    throw new Error('PROVINCE_CODE_EXISTS');
+  }
+
+  const newProvince: Province = { provinceCode, provinceName };
+  mockDb.provinces.unshift(newProvince);
+  return newProvince;
+};
+
+export const updateMockProvince = (
+  provinceCode: string,
+  data: Partial<Province>
+): Province => {
+  const index = mockDb.provinces.findIndex((item) => item.provinceCode === provinceCode);
+  if (index < 0) {
+    throw new Error('PROVINCE_NOT_FOUND');
+  }
+
+  const current = mockDb.provinces[index];
+  const updated: Province = {
+    ...current,
+    provinceName: data.provinceName?.trim() ?? current.provinceName,
+  };
+
+  mockDb.provinces[index] = updated;
+
+  mockDb.wards = mockDb.wards.map((ward) =>
+    ward.provinceCode === provinceCode ? { ...ward, provinceName: updated.provinceName } : ward
+  );
+
+  return updated;
+};
+
+export const deleteMockProvince = (provinceCode: string): void => {
+  const beforeCount = mockDb.provinces.length;
+  mockDb.provinces = mockDb.provinces.filter((item) => item.provinceCode !== provinceCode);
+
+  if (mockDb.provinces.length === beforeCount) {
+    throw new Error('PROVINCE_NOT_FOUND');
+  }
+
+  mockDb.wards = mockDb.wards.filter((ward) => ward.provinceCode !== provinceCode);
+};
+
+export const createMockWard = (ward: Ward): Ward => {
+  const wardCode = ward.wardCode.trim();
+  const wardName = ward.wardName.trim();
+  const provinceCode = ward.provinceCode.trim();
+
+  if (!wardCode || !wardName || !provinceCode) {
+    throw new Error('INVALID_WARD_DATA');
+  }
+
+  if (mockDb.wards.some((item) => item.wardCode === wardCode)) {
+    throw new Error('WARD_CODE_EXISTS');
+  }
+
+  const province = mockDb.provinces.find((item) => item.provinceCode === provinceCode);
+  if (!province) {
+    throw new Error('PROVINCE_NOT_FOUND');
+  }
+
+  const newWard: Ward = {
+    wardCode,
+    wardName,
+    provinceCode,
+    provinceName: province.provinceName,
+  };
+
+  mockDb.wards.unshift(newWard);
+  return newWard;
+};
+
+export const updateMockWard = (wardCode: string, data: Partial<Ward>): Ward => {
+  const index = mockDb.wards.findIndex((item) => item.wardCode === wardCode);
+  if (index < 0) {
+    throw new Error('WARD_NOT_FOUND');
+  }
+
+  const current = mockDb.wards[index];
+  const nextProvinceCode = data.provinceCode?.trim() ?? current.provinceCode;
+  const province = mockDb.provinces.find((item) => item.provinceCode === nextProvinceCode);
+
+  if (!province) {
+    throw new Error('PROVINCE_NOT_FOUND');
+  }
+
+  const updated: Ward = {
+    ...current,
+    wardName: data.wardName?.trim() ?? current.wardName,
+    provinceCode: nextProvinceCode,
+    provinceName: province.provinceName,
+  };
+
+  mockDb.wards[index] = updated;
+  return updated;
+};
+
+export const deleteMockWard = (wardCode: string): void => {
+  const beforeCount = mockDb.wards.length;
+  mockDb.wards = mockDb.wards.filter((item) => item.wardCode !== wardCode);
+
+  if (mockDb.wards.length === beforeCount) {
+    throw new Error('WARD_NOT_FOUND');
+  }
+};
+
 // ============ Helper Functions ============
 
 /**
@@ -76,11 +200,11 @@ export function createMockProvinceResponse(
 ): ApiResponse<Province> {
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
-  const data = mockProvinces.slice(start, end);
+  const data = mockDb.provinces.slice(start, end);
 
   return {
     data,
-    total: mockProvinces.length,
+    total: mockDb.provinces.length,
     page,
     pageSize,
   };
@@ -96,7 +220,7 @@ export function searchMockProvinces(params: {
   pageSize?: number;
 }): ApiResponse<Province> {
   const { provinceCode, provinceName, page = 1, pageSize = 10 } = params;
-  let filtered = mockProvinces;
+  let filtered = mockDb.provinces;
 
   if (provinceCode) {
     filtered = filtered.filter((p) =>
@@ -131,11 +255,11 @@ export function createMockWardResponse(
 ): ApiResponse<Ward> {
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
-  const data = mockWards.slice(start, end);
+  const data = mockDb.wards.slice(start, end);
 
   return {
     data,
-    total: mockWards.length,
+    total: mockDb.wards.length,
     page,
     pageSize,
   };
@@ -152,7 +276,7 @@ export function searchMockWards(params: {
   pageSize?: number;
 }): ApiResponse<Ward> {
   const { provinceCode, wardCode, wardName, page = 1, pageSize = 10 } = params;
-  let filtered = mockWards;
+  let filtered = mockDb.wards;
 
   if (provinceCode) {
     filtered = filtered.filter((x) => x.provinceCode === provinceCode);

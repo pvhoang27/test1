@@ -51,6 +51,12 @@ const ProvincePage: React.FC = () => {
 
   const { data, total, isLoading, mutate } = useProvince(searchParams);
 
+  const refreshAfterCreate = async () => {
+    searchForm.resetFields();
+    setSearchParams({ page: 1, pageSize: searchParams.pageSize ?? DEFAULT_PAGE_SIZE });
+    await mutate();
+  };
+
   // ---- Search ----
   const handleSearch = (values: { provinceCode?: string; provinceName?: string }) => {
     setSearchParams({ ...values, page: 1, pageSize: searchParams.pageSize });
@@ -86,13 +92,14 @@ const ProvincePage: React.FC = () => {
       if (editingRecord) {
         await provinceApi.update(editingRecord.provinceCode, values);
         message.success('Cập nhật thành công!');
+        await mutate();
       } else {
         await provinceApi.create(values);
         message.success('Thêm mới thành công!');
+        await refreshAfterCreate();
       }
       setEditModal(false);
       editForm.resetFields();
-      mutate();
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return;
       message.error(editingRecord ? 'Cập nhật thất bại. Vui lòng thử lại.' : 'Thêm mới thất bại. Vui lòng thử lại.');
@@ -211,7 +218,7 @@ const ProvincePage: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={8} lg={12} className={styles['search-actions']}>
-              <Form.Item label=" " colon={false} className={styles['search-actions__item']}>
+              <div className={styles['search-actions__group']}>
                 <Space>
                   <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                     Tìm kiếm
@@ -220,7 +227,7 @@ const ProvincePage: React.FC = () => {
                     Làm mới
                   </Button>
                 </Space>
-              </Form.Item>
+              </div>
             </Col>
           </Row>
         </Form>
@@ -330,7 +337,7 @@ const ProvincePage: React.FC = () => {
             name="provinceName"
             label="Tên Tỉnh / Thành phố"
             rules={[
-              { required: false },
+              { required: true, message: 'Nhập tên tỉnh/thành phố' },
               { max: 250, message: 'Tối đa 250 ký tự' },
               { pattern: /^\S/, message: 'Không được có ký tự trắng đầu tiên' },
             ]}

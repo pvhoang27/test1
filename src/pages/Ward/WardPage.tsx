@@ -54,6 +54,12 @@ const WardPage: React.FC = () => {
   const { data, total, isLoading, mutate } = useWard(searchParams);
   const { provinceList } = useProvinceAll();
 
+  const refreshAfterCreate = async () => {
+    searchForm.resetFields();
+    setSearchParams({ page: 1, pageSize: searchParams.pageSize ?? DEFAULT_PAGE_SIZE });
+    await mutate();
+  };
+
   const provinceOptions = provinceList.map((province) => ({
     value: province.provinceCode,
     label: province.provinceName,
@@ -94,13 +100,14 @@ const WardPage: React.FC = () => {
       if (editingRecord) {
         await wardApi.update(editingRecord.wardCode, values);
         message.success('Cập nhật thành công!');
+        await mutate();
       } else {
         await wardApi.create(values);
         message.success('Thêm mới thành công!');
+        await refreshAfterCreate();
       }
       setEditModal(false);
       editForm.resetFields();
-      mutate();
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return;
       message.error(editingRecord ? 'Cập nhật thất bại. Vui lòng thử lại.' : 'Thêm mới thất bại. Vui lòng thử lại.');
@@ -229,7 +236,7 @@ const WardPage: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={24} md={10} lg={13} className={styles['search-actions']}>
-              <Form.Item label=" " colon={false} className={styles['search-actions__item']}>
+              <div className={styles['search-actions__group']}>
                 <Space>
                   <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                     Tìm kiếm
@@ -238,7 +245,7 @@ const WardPage: React.FC = () => {
                     Làm mới
                   </Button>
                 </Space>
-              </Form.Item>
+              </div>
             </Col>
           </Row>
         </Form>
