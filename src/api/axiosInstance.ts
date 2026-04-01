@@ -20,6 +20,7 @@ const LEGACY_ENDPOINTS = {
 const LEGACY_FIELDS = {
   provinceCode: 'maTinh',
   provinceName: 'tenTinh',
+  wardCode: 'maXa',
   wardName: 'tenXa',
 } as const;
 
@@ -47,6 +48,9 @@ const toLegacyPath = (url: string): string => {
   return url;
 };
 
+const isUrlMatch = (url: string, englishPath: string, legacyPath: string): boolean =>
+  url.includes(englishPath) || url.includes(legacyPath);
+
 // Keep frontend endpoint names in English while remaining backward-compatible with legacy backend routes.
 api.interceptors.request.use((config) => {
   if (typeof config.url === 'string') {
@@ -69,7 +73,7 @@ api.interceptors.response.use(
       console.warn('Using mock data for:', url);
 
       // Tỉnh TP - getAll
-      if (url.includes(ENDPOINTS.provincesAll)) {
+      if (isUrlMatch(url, ENDPOINTS.provincesAll, LEGACY_ENDPOINTS.provincesAll)) {
         return Promise.resolve({
           data: mockProvinces,
           status: 200,
@@ -80,8 +84,12 @@ api.interceptors.response.use(
       }
 
       // Tỉnh TP - search
-      if (url.includes(ENDPOINTS.provinces) && !url.includes('all')) {
+      if (
+        isUrlMatch(url, ENDPOINTS.provinces, LEGACY_ENDPOINTS.provinces) &&
+        !url.includes('all')
+      ) {
         const result = searchMockProvinces({
+          provinceCode: params[LEGACY_FIELDS.provinceCode] ?? params.provinceCode,
           provinceName: params[LEGACY_FIELDS.provinceName] ?? params.provinceName,
           page: params.page || 1,
           pageSize: params.pageSize || 10,
@@ -97,9 +105,10 @@ api.interceptors.response.use(
 
 
       // Xã Phường
-      if (url.includes(ENDPOINTS.wards)) {
+      if (isUrlMatch(url, ENDPOINTS.wards, LEGACY_ENDPOINTS.wards)) {
         const result = searchMockWards({
           provinceCode: params[LEGACY_FIELDS.provinceCode] ?? params.provinceCode,
+          wardCode: params[LEGACY_FIELDS.wardCode] ?? params.wardCode,
           wardName: params[LEGACY_FIELDS.wardName] ?? params.wardName,
           page: params.page || 1,
           pageSize: params.pageSize || 10,

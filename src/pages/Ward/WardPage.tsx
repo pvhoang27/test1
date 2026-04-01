@@ -19,6 +19,7 @@ import {
 import {
   SearchOutlined,
   UploadOutlined,
+  PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   InboxOutlined,
@@ -74,6 +75,12 @@ const WardPage: React.FC = () => {
   };
 
   // ---- Edit ----
+  const openCreate = () => {
+    setEditingRecord(null);
+    editForm.resetFields();
+    setEditModal(true);
+  };
+
   const openEdit = (record: Ward) => {
     setEditingRecord(record);
     editForm.setFieldsValue(record);
@@ -84,13 +91,19 @@ const WardPage: React.FC = () => {
     try {
       const values = await editForm.validateFields();
       setSaving(true);
-      await wardApi.update(editingRecord!.wardCode, values);
-      message.success('Cập nhật thành công!');
+      if (editingRecord) {
+        await wardApi.update(editingRecord.wardCode, values);
+        message.success('Cập nhật thành công!');
+      } else {
+        await wardApi.create(values);
+        message.success('Thêm mới thành công!');
+      }
       setEditModal(false);
+      editForm.resetFields();
       mutate();
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return;
-      message.error('Cập nhật thất bại. Vui lòng thử lại.');
+      message.error(editingRecord ? 'Cập nhật thất bại. Vui lòng thử lại.' : 'Thêm mới thất bại. Vui lòng thử lại.');
     } finally {
       setSaving(false);
     }
@@ -203,7 +216,7 @@ const WardPage: React.FC = () => {
         <div className={styles['search-section__title']}>
           <SearchOutlined /> Tìm kiếm Xã / Phường
         </div>
-        <Form form={searchForm} layout="inline" onFinish={handleSearch}>
+        <Form form={searchForm} layout="vertical" onFinish={handleSearch}>
           <Row gutter={[12, 12]} style={{ width: '100%' }}>
             <Col xs={24} sm={12} md={6} lg={5}>
               <Form.Item name="wardCode" label="Mã Xã / Phường">
@@ -215,15 +228,17 @@ const WardPage: React.FC = () => {
                 <Input placeholder="Nhập tên xã/phường" maxLength={250} allowClear />
               </Form.Item>
             </Col>
-            <Col>
-              <Space>
-                <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-                  Tìm kiếm
-                </Button>
-                <Button icon={<ReloadOutlined />} onClick={handleReset}>
-                  Làm mới
-                </Button>
-              </Space>
+            <Col xs={24} sm={24} md={10} lg={13} className={styles['search-actions']}>
+              <Form.Item label=" " colon={false} className={styles['search-actions__item']}>
+                <Space>
+                  <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
+                    Tìm kiếm
+                  </Button>
+                  <Button icon={<ReloadOutlined />} onClick={handleReset}>
+                    Làm mới
+                  </Button>
+                </Space>
+              </Form.Item>
             </Col>
           </Row>
         </Form>
@@ -238,13 +253,18 @@ const WardPage: React.FC = () => {
               — Tổng: <strong>{total}</strong> bản ghi
             </span>
           </span>
-          <Button
-            type="primary"
-            icon={<UploadOutlined />}
-            onClick={() => setImportModal(true)}
-          >
-            Import file
-          </Button>
+          <Space>
+            <Button type="primary" ghost icon={<PlusOutlined />} onClick={openCreate}>
+              Thêm mới
+            </Button>
+            <Button
+              type="primary"
+              icon={<UploadOutlined />}
+              onClick={() => setImportModal(true)}
+            >
+              Import file
+            </Button>
+          </Space>
         </div>
 
         <Table
@@ -322,27 +342,49 @@ const WardPage: React.FC = () => {
 
       {/* Edit Modal */}
       <Modal
-        title="Cập nhật Xã / Phường"
+        title={editingRecord ? 'Cập nhật Xã / Phường' : 'Thêm mới Xã / Phường'}
         open={editModal}
         onOk={handleSave}
-        onCancel={() => setEditModal(false)}
-        okText="Lưu"
+        onCancel={() => {
+          setEditModal(false);
+          setEditingRecord(null);
+          editForm.resetFields();
+        }}
+        okText={editingRecord ? 'Lưu' : 'Thêm mới'}
         cancelText="Hủy"
         confirmLoading={saving}
       >
         <Form form={editForm} layout="vertical">
-          <Form.Item name="wardCode" label="Mã Xã / Phường">
-            <Input maxLength={6} disabled />
+          <Form.Item
+            name="wardCode"
+            label="Mã Xã / Phường"
+            rules={[{ required: true, message: 'Nhập mã xã/phường' }]}
+          >
+            <Input maxLength={25} disabled={!!editingRecord} />
           </Form.Item>
           <Form.Item
             name="wardName"
             label="Tên Xã / Phường"
             rules={[
+              { required: true, message: 'Nhập tên xã/phường' },
               { max: 250, message: 'Tối đa 250 ký tự' },
               { pattern: /^\S/, message: 'Không được có ký tự trắng đầu tiên' },
             ]}
           >
             <Input maxLength={250} placeholder="Hỗ trợ tiếng Việt có dấu" />
+          </Form.Item>
+          <Form.Item
+            name="provinceCode"
+            label="Tỉnh / Thành phố"
+            rules={[{ required: true, message: 'Vui lòng chọn Tỉnh/Thành phố' }]}
+          >
+            <Select
+              placeholder="Chọn tỉnh/TP"
+              showSearch
+              optionFilterProp="label"
+              options={provinceOptions}
+              disabled={!!editingRecord}
+            />
           </Form.Item>
         </Form>
       </Modal>

@@ -16,6 +16,15 @@
   }
 }
 
+.search-actions {
+  display: flex;
+  align-items: flex-end;
+
+  &__item {
+    margin-bottom: 24px;
+  }
+}
+
 .table-section {
   background: #fff;
   border-radius: 8px;

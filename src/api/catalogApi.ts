@@ -65,6 +65,14 @@ const mapWardSearchResponse = (
 
 // ============ Province APIs ============
 export const provinceApi = {
+  create: (data: Province): Promise<Province> =>
+    api
+      .post(ENDPOINTS.provinces, {
+        [LEGACY_FIELDS.provinceCode]: data.provinceCode,
+        [LEGACY_FIELDS.provinceName]: data.provinceName,
+      })
+      .then((r) => toProvince(r.data)),
+
   search: (params: ProvinceSearchParams): Promise<ApiResponse<Province>> =>
     api
       .get(ENDPOINTS.provinces, {
@@ -108,6 +116,15 @@ export const provinceApi = {
 
 // ============ Ward APIs ============
 export const wardApi = {
+  create: (data: Ward): Promise<Ward> =>
+    api
+      .post(ENDPOINTS.wards, {
+        [LEGACY_FIELDS.wardCode]: data.wardCode,
+        [LEGACY_FIELDS.wardName]: data.wardName,
+        [LEGACY_FIELDS.provinceCode]: data.provinceCode,
+      })
+      .then((r) => toWard(r.data)),
+
   search: (params: WardSearchParams): Promise<ApiResponse<Ward>> =>
     api
       .get(ENDPOINTS.wards, {

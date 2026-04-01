@@ -18,6 +18,7 @@ import {
 import {
   SearchOutlined,
   UploadOutlined,
+  PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   InboxOutlined,
@@ -66,6 +67,12 @@ const ProvincePage: React.FC = () => {
   };
 
   // ---- Edit ----
+  const openCreate = () => {
+    setEditingRecord(null);
+    editForm.resetFields();
+    setEditModal(true);
+  };
+
   const openEdit = (record: Province) => {
     setEditingRecord(record);
     editForm.setFieldsValue(record);
@@ -76,13 +83,19 @@ const ProvincePage: React.FC = () => {
     try {
       const values = await editForm.validateFields();
       setSaving(true);
-      await provinceApi.update(editingRecord!.provinceCode, values);
-      message.success('Cập nhật thành công!');
+      if (editingRecord) {
+        await provinceApi.update(editingRecord.provinceCode, values);
+        message.success('Cập nhật thành công!');
+      } else {
+        await provinceApi.create(values);
+        message.success('Thêm mới thành công!');
+      }
       setEditModal(false);
+      editForm.resetFields();
       mutate();
     } catch (err) {
       if (err && typeof err === 'object' && 'errorFields' in err) return;
-      message.error('Cập nhật thất bại. Vui lòng thử lại.');
+      message.error(editingRecord ? 'Cập nhật thất bại. Vui lòng thử lại.' : 'Thêm mới thất bại. Vui lòng thử lại.');
     } finally {
       setSaving(false);
     }
@@ -185,7 +198,7 @@ const ProvincePage: React.FC = () => {
         <div className={styles['search-section__title']}>
           <SearchOutlined /> Tìm kiếm Tỉnh / Thành phố
         </div>
-        <Form form={searchForm} layout="inline" onFinish={handleSearch}>
+        <Form form={searchForm} layout="vertical" onFinish={handleSearch}>
           <Row gutter={[12, 12]} style={{ width: '100%' }}>
             <Col xs={24} sm={12} md={8} lg={6}>
               <Form.Item name="provinceCode" label="Mã Tỉnh / TP">
@@ -197,15 +210,17 @@ const ProvincePage: React.FC = () => {
                 <Input placeholder="Nhập tên tỉnh/TP" maxLength={250} allowClear />
               </Form.Item>
             </Col>
-            <Col>
-              <Space>
-                <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-                  Tìm kiếm
-                </Button>
-                <Button icon={<ReloadOutlined />} onClick={handleReset}>
-                  Làm mới
-                </Button>
-              </Space>
+            <Col xs={24} sm={24} md={8} lg={12} className={styles['search-actions']}>
+              <Form.Item label=" " colon={false} className={styles['search-actions__item']}>
+                <Space>
+                  <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
+                    Tìm kiếm
+                  </Button>
+                  <Button icon={<ReloadOutlined />} onClick={handleReset}>
+                    Làm mới
+                  </Button>
+                </Space>
+              </Form.Item>
             </Col>
           </Row>
         </Form>
@@ -220,13 +235,18 @@ const ProvincePage: React.FC = () => {
               — Tổng: <strong>{total}</strong> bản ghi
             </span>
           </span>
-          <Button
-            type="primary"
-            icon={<UploadOutlined />}
-            onClick={() => setImportModal(true)}
-          >
-            Import file
-          </Button>
+          <Space>
+            <Button type="primary" ghost icon={<PlusOutlined />} onClick={openCreate}>
+              Thêm mới
+            </Button>
+            <Button
+              type="primary"
+              icon={<UploadOutlined />}
+              onClick={() => setImportModal(true)}
+            >
+              Import file
+            </Button>
+          </Space>
         </div>
 
         <Table
@@ -286,11 +306,15 @@ const ProvincePage: React.FC = () => {
 
       {/* Edit Modal */}
       <Modal
-        title="Cập nhật Tỉnh / Thành phố"
+        title={editingRecord ? 'Cập nhật Tỉnh / Thành phố' : 'Thêm mới Tỉnh / Thành phố'}
         open={editModal}
         onOk={handleSave}
-        onCancel={() => setEditModal(false)}
-        okText="Lưu"
+        onCancel={() => {
+          setEditModal(false);
+          setEditingRecord(null);
+          editForm.resetFields();
+        }}
+        okText={editingRecord ? 'Lưu' : 'Thêm mới'}
         cancelText="Hủy"
         confirmLoading={saving}
       >
@@ -300,7 +324,7 @@ const ProvincePage: React.FC = () => {
             label="Mã Tỉnh / TP"
             rules={[{ required: true, message: 'Nhập mã tỉnh/TP' }]}
           >
-            <Input maxLength={6} placeholder="Tối đa 6 số" disabled />
+            <Input maxLength={6} placeholder="Tối đa 6 số" disabled={!!editingRecord} />
           </Form.Item>
           <Form.Item
             name="provinceName"
